@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Readsheet">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a12">
+<title>Readsheet</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0a12'/><rect x='22' y='18' width='56' height='64' rx='4' fill='%23f5f0e6'/><path d='M48 42 q12 -8 8 12 q-4 12 -12 6' fill='%23ffd700'/><circle cx='40' cy='58' r='6' fill='%23ffd700'/></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:root {
+  --bg: #0a0a12;
+  --bg2: #12121c;
+  --yellow: #ffd700;
+  --gold: #e6b800;
+  --accent: #5eead4;
+  --accent2: #a78bfa;
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --text: #f5f5f7;
+  --text-dim: #a1a1aa;
+  --danger: #f87171;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(160deg, #0a0a12 0%, #151525 100%);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+header {
+  display: flex;
+  align-items: center;
+  padding: 18px 22px;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,18,0.65);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+.logo {
+  width: 44px;
+  height: 44px;
+  background: var(--bg2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yellow);
+  box-shadow: 0 0 12px rgba(255,215,0,0.25);
+}
+.logo svg { width: 30px; height: 30px; }
+h1 { font-size: 1.55rem; font-weight: 700; background: linear-gradient(90deg, var(--yellow), #fff8dc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.container { max-width: 980px; margin: 0 auto; padding: 22px; }
+.hero {
+  text-align: center;
+  padding: 28px 20px;
+  margin-bottom: 24px;
+}
+.hero h2 { font-size: 1.8rem; margin-bottom: 8px; font-weight: 700; }
+.hero p { color: var(--text-dim); font-size: 1.05rem; max-width: 540px; margin: 0 auto; }
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 11px 18px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.98rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: var(--glass);
+  border-color: var(--glass-border);
+  color: var(--yellow);
+  box-shadow: 0 4px 16px rgba(255,215,0,0.15);
+}
+.section { display: none; }
+.section.active { display: block; }
+.search-bar {
+  margin-bottom: 16px;
+}
+.search-bar input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 1rem;
+}
+.card {
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.3); }
+.card-info { flex: 1; min-width: 0; }
+.card-info strong { display: block; word-break: break-word; font-weight: 600; }
+.card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn {
+  background: linear-gradient(135deg, var(--yellow), var(--gold));
+  color: #111;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(255,215,0,0.3);
+}
+.btn:hover { filter: brightness(1.05); }
+.btn-secondary {
+  background: var(--glass);
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.btn-danger { background: rgba(248,113,113,0.15); color: var(--danger); border-color: rgba(248,113,113,0.3); }
+input, select, textarea {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px;
+  color: var(--text);
+  width: 100%;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+#viewer {
+  position: fixed;
+  inset: 0;
+  background: #050508;
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+}
+#viewer.active { display: flex; }
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(10,10,18,0.75);
+  backdrop-filter: blur(16px);
+  gap: 10px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--glass-border);
+}
+#pages-container {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.page-img, .page-canvas {
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  background: white;
+  border-radius: 6px;
+}
+.tap-zones { position: absolute; inset: 70px 0 0 0; pointer-events: none; }
+.tap-left, .tap-right { position: absolute; top: 0; bottom: 0; width: 26%; pointer-events: auto; }
+.tap-left { left: 0; }
+.tap-right { right: 0; }
+.hidden { display: none !important; }
+.settings-group { margin-bottom: 18px; }
+.settings-group label { display: block; margin-bottom: 8px; color: var(--text-dim); font-weight: 500; }
+.stat-row { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; justify-content: center; }
+.stat { background: var(--glass); padding: 12px 18px; border-radius: 14px; text-align: center; min-width: 100px; }
+.stat b { display: block; font-size: 1.4rem; color: var(--yellow); }
+@media (max-width: 640px) {
+  .container { padding: 14px; }
+  header { padding: 14px 16px; }
+  h1 { font-size: 1.3rem; }
+  .hero h2 { font-size: 1.45rem; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="22" fill="#0a0a12"/>
+      <rect x="24" y="16" width="52" height="68" rx="5" fill="#f7f3ea" stroke="#ddd" stroke-width="1"/>
+      <path d="M46 38 q14 -10 10 16 q-5 14 -14 7" fill="#ffd700"/>
+      <circle cx="38" cy="58" r="6.5" fill="#ffd700"/>
+      <path d="M62 22 l6 6" stroke="#ccc" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+  <h1>Readsheet</h1>
+</header>
+<div class="container">
+  <div class="hero glass">
+    <h2>Je bladmuziek, altijd bij de hand</h2>
+    <p>Bekijk PDF’s en foto’s, maak setlists, en voeg bestanden toe via upload of delen vanuit andere apps. Alles lokaal en offline.</p>
+    <div class="stat-row" id="stats"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="library">Bibliotheek</button>
+    <button class="tab" data-tab="setlists">Setlists</button>
+    <button class="tab" data-tab="settings">Instellingen</button>
+  </div>
+  <div id="library" class="section active">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+      <button class="btn" id="uploadBtn">+ Bestand toevoegen</button>
+      <button class="btn-secondary" id="cameraBtn">📷 Foto maken</button>
+    </div>
+    <input type="file" id="fileInput" multiple accept="*/*" style="display:none">
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+    <div class="search-bar"><input type="search" id="search" placeholder="Zoek in bibliotheek..."></div>
+    <div id="libraryList"></div>
+    <p style="margin-top:18px; color:var(--text-dim); font-size:0.92rem;">Tip: Deel een PDF of foto vanuit Mail, Bestanden of Foto’s naar Readsheet (na toevoegen aan startscherm). Of upload hier.</p>
+  </div>
+  <div id="setlists" class="section">
+    <button class="btn" id="newSetlistBtn">+ Nieuwe setlist</button>
+    <div id="setlistList" style="margin-top:20px;"></div>
+  </div>
+  <div id="settings" class="section">
+    <div class="settings-group glass" style="padding:18px;">
+      <label>Navigatie modus</label>
+      <select id="navMode">
+        <option value="tap">Tik links/rechts (pagina wisselen)</option>
+        <option value="scroll">Scroll onder elkaar</option>
+      </select>
+    </div>
+    <div class="settings-group glass" style="padding:18px;">
+      <label>PDF schaal (kwaliteit)</label>
+      <select id="pdfScale">
+        <option value="1.2">Normaal</option>
+        <option value="1.5" selected>Hoog</option>
+        <option value="2">Extra hoog</option>
+      </select>
+    </div>
+    <div class="settings-group glass" style="padding:18px;">
+      <p style="margin-bottom:10px; font-weight:500;">Toevoegen aan startscherm (Apple & Android)</p>
+      <p style="font-size:0.9rem; color:var(--text-dim); line-height:1.55;">
+        <strong>iPhone/iPad:</strong> Deel → Voeg toe aan beginscherm<br>
+        <strong>Android:</strong> Menu → Toevoegen aan startscherm / Installeren<br><br>
+        Daarna kun je vanuit andere apps (Mail, Foto’s, Bestanden) direct delen naar Readsheet.
+      </p>
+    </div>
+  </div>
+</div>
+<div id="viewer">
+  <div class="viewer-header">
+    <button class="btn-secondary" id="closeViewer">← Terug</button>
+    <span id="viewerTitle" style="font-weight:600; max-width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Bladmuziek</span>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <button class="btn-secondary" id="zoomOut">−</button>
+      <button class="btn-secondary" id="zoomIn">+</button>
+      <button class="btn-secondary" id="prevItem">← Vorige</button>
+      <button class="btn-secondary" id="nextItem">Volgende →</button>
+      <span id="pageInfo"></span>
+    </div>
+  </div>
+  <div id="pages-container"></div>
+  <div class="tap-zones" id="tapZones">
+    <div class="tap-left" id="tapLeft"></div>
+    <div class="tap-right" id="tapRight"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const DB_NAME = 'ReadsheetDB';
+const DB_VERSION = 2;
+let db;
+let currentSheets = [];
+let currentSetlists = [];
+let settings = { navMode: 'tap', pdfScale: 1.5, lastView: null };
+let currentViewer = { type: null, items: [], index: 0, pages: [], pageIndex: 0, zoom: 1 };
+let searchQuery = '';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('sheets')) {
+        const store = db.createObjectStore('sheets', { keyPath: 'id' });
+        store.createIndex('name', 'name');
+      }
+      if (!db.objectStoreNames.contains('setlists')) db.createObjectStore('setlists', { keyPath: 'id' });
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = reject;
+  });
+}
+
+async function loadData() {
+  const tx = db.transaction(['sheets', 'setlists'], 'readonly');
+  currentSheets = await new Promise(r => { const req = tx.objectStore('sheets').getAll(); req.onsuccess = () => r(req.result || []); });
+  currentSetlists = await new Promise(r => { const req = tx.objectStore('setlists').getAll(); req.onsuccess = () => r(req.result || []); });
+  const saved = localStorage.getItem('readsheet-settings');
+  if (saved) settings = { ...settings, ...JSON.parse(saved) };
+  document.getElementById('navMode').value = settings.navMode;
+  document.getElementById('pdfScale').value = settings.pdfScale || 1.5;
+  updateStats();
+  renderLibrary();
+  renderSetlists();
+}
+
+function saveSettings() { localStorage.setItem('readsheet-settings', JSON.stringify(settings)); }
+function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, m => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[m])); }
+
+function updateStats() {
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${currentSheets.length}</b><span>Stukken</span></div>
+    <div class="stat"><b>${currentSetlists.length}</b><span>Setlists</span></div>
+    <div class="stat"><b>${currentSheets.filter(s => s.favorite).length}</b><span>Favorieten</span></div>
+  `;
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  };
+});
+
+document.getElementById('uploadBtn').onclick = () => document.getElementById('fileInput').click();
+document.getElementById('cameraBtn').onclick = () => document.getElementById('cameraInput').click();
+
+async function addFiles(files) {
+  for (const file of Array.from(files)) {
+    const id = 'sheet_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    const sheet = { id, name: file.name || 'Onbenoemd', type: file.type || 'application/octet-stream', blob: file, date: new Date().toISOString(), favorite: false, notes: '' };
+    const tx = db.transaction('sheets', 'readwrite');
+    tx.objectStore('sheets').put(sheet);
+    await new Promise(r => { tx.oncomplete = r; });
+  }
+  await loadData();
+}
+
+document.getElementById('fileInput').onchange = async e => { await addFiles(e.target.files); e.target.value = ''; };
+document.getElementById('cameraInput').onchange = async e => { await addFiles(e.target.files); e.target.value = ''; };
+
+document.getElementById('search').oninput = e => { searchQuery = e.target.value.toLowerCase(); renderLibrary(); };
+
+document.getElementById('newSetlistBtn').onclick = async () => {
+  const name = prompt('Naam van de setlist:');
+  if (!name || !name.trim()) return;
+  const id = 'set_' + Date.now();
+  const setlist = { id, name: name.trim(), items: [], date: new Date().toISOString() };
+  const tx = db.transaction('setlists', 'readwrite');
+  tx.objectStore('setlists').put(setlist);
+  await new Promise(r => { tx.oncomplete = r; });
+  await loadData();
+};
+
+document.getElementById('navMode').onchange = e => { settings.navMode = e.target.value; saveSettings(); };
+document.getElementById('pdfScale').onchange = e => { settings.pdfScale = parseFloat(e.target.value); saveSettings(); };
+
+function renderLibrary() {
+  const filtered = currentSheets.filter(s => !searchQuery || s.name.toLowerCase().includes(searchQuery) || (s.notes || '').toLowerCase().includes(searchQuery));
+  const list = document.getElementById('libraryList');
+  list.innerHTML = filtered.length ? filtered.map(s => `
+    <div class="card glass" data-id="${s.id}">
+      <div class="card-info">
+        <strong>${escapeHtml(s.name)} ${s.favorite ? '★' : ''}</strong>
+        <small style="color:var(--text-dim)">${(s.type || '').split('/')[1] || 'bestand'} • ${new Date(s.date).toLocaleDateString('nl-NL')}</small>
+      </div>
+      <div class="card-actions">
+        <button class="btn-secondary fav-btn" data-id="${s.id}">${s.favorite ? '★' : '☆'}</button>
+        <button class="btn-secondary add-to-set" data-id="${s.id}">+ Set</button>
+        <button class="btn-secondary rename-btn" data-id="${s.id}">✎</button>
+        <button class="btn-secondary btn-danger del-btn" data-id="${s.id}">✕</button>
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--text-dim); padding:20px 0;">Geen stukken gevonden. Voeg een PDF of foto toe.</p>';
+
+  list.querySelectorAll('.card').forEach(card => {
+    card.onclick = e => { if (e.target.closest('.card-actions')) return; openSheet(card.dataset.id); };
+  });
+  list.querySelectorAll('.fav-btn').forEach(btn => btn.onclick = async e => { e.stopPropagation(); await toggleFavorite(btn.dataset.id); });
+  list.querySelectorAll('.add-to-set').forEach(btn => btn.onclick = async e => { e.stopPropagation(); await addToSetlist(btn.dataset.id); });
+  list.querySelectorAll('.rename-btn').forEach(btn => btn.onclick = async e => { e.stopPropagation(); await renameSheet(btn.dataset.id); });
+  list.querySelectorAll('.del-btn').forEach(btn => btn.onclick = async e => { e.stopPropagation(); if (confirm('Verwijderen?')) await deleteSheet(btn.dataset.id); });
+}
+
+async function toggleFavorite(id) {
+  const sheet = currentSheets.find(s => s.id === id);
+  if (!sheet) return;
+  sheet.favorite = !sheet.favorite;
+  const tx = db.transaction('sheets', 'readwrite');
+  tx.objectStore('sheets').put(sheet);
+  await new Promise(r => tx.oncomplete = r);
+  await loadData();
+}
+
+async function renameSheet(id) {
+  const sheet = currentSheets.find(s => s.id === id);
+  if (!sheet) return;
+  const name = prompt('Nieuwe naam:', sheet.name);
+  if (name && name.trim()) {
+    sheet.name = name.trim();
+    const tx = db.transaction('sheets', 'readwrite');
+    tx.objectStore('sheets').put(sheet);
+    await new Promise(r => tx.oncomplete = r);
+    await loadData();
+  }
+}
+
+async function deleteSheet(id) {
+  const tx = db.transaction('sheets', 'readwrite');
+  tx.objectStore('sheets').delete(id);
+  await new Promise(r => tx.oncomplete = r);
+  // Also remove from setlists
+  for (const sl of currentSetlists) {
+    sl.items = sl.items.filter(i => i !== id);
+    const t2 = db.transaction('setlists', 'readwrite');
+    t2.objectStore('setlists').put(sl);
+    await new Promise(r => t2.oncomplete = r);
+  }
+  await loadData();
+}
+
+async function addToSetlist(sid) {
+  if (currentSetlists.length === 0) { alert('Maak eerst een setlist.'); return; }
+  const names = currentSetlists.map(s => s.name);
+  const choice = prompt('Voeg toe aan setlist:\n' + names.map((n,i) => `${i+1}. ${n}`).join('\n') + '\n\nNummer:');
+  const idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < currentSetlists.length) {
+    const setlist = currentSetlists[idx];
+    if (!setlist.items.includes(sid)) {
+      setlist.items.push(sid);
+      const tx = db.transaction('setlists', 'readwrite');
+      tx.objectStore('setlists').put(setlist);
+      await new Promise(r => tx.oncomplete = r);
+      await loadData();
+      alert('Toegevoegd!');
+    } else alert('Al in deze setlist.');
+  }
+}
+
+function renderSetlists() {
+  const list = document.getElementById('setlistList');
+  list.innerHTML = currentSetlists.length ? currentSetlists.map(s => `
+    <div class="card glass" data-id="${s.id}">
+      <div class="card-info">
+        <strong>${escapeHtml(s.name)}</strong>
+        <small style="color:var(--text-dim)">${s.items.length} stukken</small>
+      </div>
+      <div class="card-actions">
+        <button class="btn-secondary view-set" data-id="${s.id}">Bekijk</button>
+        <button class="btn-secondary btn-danger del-set" data-id="${s.id}">✕</button>
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--text-dim)">Nog geen setlists.</p>';
+  list.querySelectorAll('.card').forEach(card => {
+    card.onclick = e => { if (e.target.closest('.card-actions')) return; openSetlist(card.dataset.id); };
+  });
+  list.querySelectorAll('.view-set').forEach(btn => btn.onclick = e => { e.stopPropagation(); openSetlist(btn.dataset.id); });
+  list.querySelectorAll('.del-set').forEach(btn => btn.onclick = async e => {
+    e.stopPropagation();
+    if (confirm('Setlist verwijderen?')) {
+      const tx = db.transaction('setlists', 'readwrite');
+      tx.objectStore('setlists').delete(btn.dataset.id);
+      await new Promise(r => tx.oncomplete = r);
+      await loadData();
+    }
+  });
+}
+
+async function openSheet(id) {
+  const sheet = currentSheets.find(s => s.id === id);
+  if (!sheet) return;
+  currentViewer = { type: 'sheet', items: [sheet], index: 0, pages: [], pageIndex: 0, zoom: 1 };
+  await showViewer();
+}
+
+async function openSetlist(id) {
+  const setlist = currentSetlists.find(s => s.id === id);
+  if (!setlist) return;
+  if (setlist.items.length === 0) { alert('Lege setlist. Voeg stukken toe vanuit de bibliotheek.'); return; }
+  const sheets = setlist.items.map(sid => currentSheets.find(s => s.id === sid)).filter(Boolean);
+  currentViewer = { type: 'setlist', items: sheets, index: 0, pages: [], pageIndex: 0, zoom: 1, setlistId: id };
+  await showViewer();
+}
+
+async function showViewer() {
+  const sheet = currentViewer.items[currentViewer.index];
+  if (!sheet) return;
+  document.getElementById('viewerTitle').textContent = sheet.name;
+  document.getElementById('viewer').classList.add('active');
+  const container = document.getElementById('pages-container');
+  container.innerHTML = '';
+  const tapZones = document.getElementById('tapZones');
+  tapZones.classList.toggle('hidden', settings.navMode !== 'tap');
+  const isMulti = currentViewer.items.length > 1;
+  document.getElementById('prevItem').style.display = isMulti ? 'inline-flex' : 'none';
+  document.getElementById('nextItem').style.display = isMulti ? 'inline-flex' : 'none';
+
+  if (sheet.type && sheet.type.startsWith('image/')) {
+    const url = URL.createObjectURL(sheet.blob);
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = 'page-img';
+    img.style.transform = `scale(${currentViewer.zoom})`;
+    img.style.transformOrigin = 'top center';
+    img.onload = () => URL.revokeObjectURL(url);
+    container.appendChild(img);
+    document.getElementById('pageInfo').textContent = '1 / 1';
+    currentViewer.pages = [];
+  } else if (sheet.type === 'application/pdf' || (sheet.name && sheet.name.toLowerCase().endsWith('.pdf'))) {
+    try {
+      const url = URL.createObjectURL(sheet.blob);
+      const pdf = await pdfjsLib.getDocument(url).promise;
+      currentViewer.pages = [];
+      const scale = (settings.pdfScale || 1.5) * currentViewer.zoom;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.className = 'page-canvas';
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport }).promise;
+        currentViewer.pages.push(canvas);
+      }
+      URL.revokeObjectURL(url);
+      if (settings.navMode === 'scroll') {
+        currentViewer.pages.forEach(c => container.appendChild(c));
+        document.getElementById('pageInfo').textContent = `${pdf.numPages} pagina's`;
+      } else {
+        showPage(0);
+      }
+    } catch (err) {
+      container.innerHTML = '<p style="color:#f87171; padding:40px; text-align:center;">Kon PDF niet laden.</p>';
+    }
+  } else {
+    container.innerHTML = '<p style="color:var(--text-dim); padding:40px; text-align:center;">Bestand opgeslagen. Bekijken werkt het beste met PDF of afbeelding.</p>';
+  }
+  settings.lastView = sheet.id;
+  saveSettings();
+}
+
+function showPage(idx) {
+  if (!currentViewer.pages || !currentViewer.pages.length) return;
+  idx = Math.max(0, Math.min(idx, currentViewer.pages.length - 1));
+  currentViewer.pageIndex = idx;
+  const container = document.getElementById('pages-container');
+  container.innerHTML = '';
+  const c = currentViewer.pages[idx];
+  c.style.transform = `scale(${currentViewer.zoom})`;
+  c.style.transformOrigin = 'top center';
+  container.appendChild(c);
+  document.getElementById('pageInfo').textContent = `${idx + 1} / ${currentViewer.pages.length}`;
+}
+
+document.getElementById('tapLeft').onclick = () => { if (settings.navMode === 'tap' && currentViewer.pages?.length) showPage((currentViewer.pageIndex || 0) - 1); };
+document.getElementById('tapRight').onclick = () => { if (settings.navMode === 'tap' && currentViewer.pages?.length) showPage((currentViewer.pageIndex || 0) + 1); };
+document.getElementById('prevItem').onclick = async () => { if (currentViewer.index > 0) { currentViewer.index--; currentViewer.pageIndex = 0; await showViewer(); } };
+document.getElementById('nextItem').onclick = async () => { if (currentViewer.index < currentViewer.items.length - 1) { currentViewer.index++; currentViewer.pageIndex = 0; await showViewer(); } };
+document.getElementById('zoomIn').onclick = () => { currentViewer.zoom = Math.min(2.5, currentViewer.zoom + 0.2); showViewer(); };
+document.getElementById('zoomOut').onclick = () => { currentViewer.zoom = Math.max(0.6, currentViewer.zoom - 0.2); showViewer(); };
+document.getElementById('closeViewer').onclick = () => {
+  document.getElementById('viewer').classList.remove('active');
+  document.getElementById('pages-container').innerHTML = '';
+  currentViewer.pages = [];
+};
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('viewer').classList.contains('active')) return;
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') showPage((currentViewer.pageIndex || 0) - 1);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') showPage((currentViewer.pageIndex || 0) + 1);
+  if (e.key === 'Escape') document.getElementById('closeViewer').click();
+});
+
+// Service worker for share target + offline
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// Check for shared files (basic)
+if (new URLSearchParams(location.search).has('shared')) {
+  setTimeout(() => alert('Bestand gedeeld ontvangen! Gebruik de upload-knop als het niet automatisch is toegevoegd, of deel opnieuw na het installeren van de app.'), 500);
+}
+
+openDB().then(loadData).catch(err => { console.error(err); alert('Opslag probleem. Herlaad de pagina.'); });
+</script>
+</body>
+</html>
